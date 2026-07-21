@@ -155,8 +155,8 @@
         return Auth.login(username, password);
       }).then(function(result) {
         if (result && result.success) {
-          var map = { GURU: '/pages/guru/dashboard.html', SISWA: '/pages/siswa/dashboard.html', ADMIN: '/pages/admin/dashboard.html' };
-          window.location.href = map[result.user.role] || '/login.html';
+          var base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1); var map = { GURU: base + 'pages/guru/dashboard.html', SISWA: base + 'pages/siswa/dashboard.html', ADMIN: base + 'pages/admin/dashboard.html' };
+          window.location.href = map[result.user.role] || './login.html';
         } else {
           errorEl.style.display = 'flex';
           errorText.textContent = 'Username atau password salah';
@@ -181,8 +181,8 @@
       var Auth = mod.default;
       var session = Auth.checkSession();
       if (session) {
-        var map = { GURU: '/pages/guru/dashboard.html', SISWA: '/pages/siswa/dashboard.html', ADMIN: '/pages/admin/dashboard.html' };
-        window.location.href = map[session.role] || '/login.html';
+        var base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1); var map = { GURU: base + 'pages/guru/dashboard.html', SISWA: base + 'pages/siswa/dashboard.html', ADMIN: base + 'pages/admin/dashboard.html' };
+        window.location.href = map[session.role] || './login.html';
       }
     }).catch(function() {});
   </script>
