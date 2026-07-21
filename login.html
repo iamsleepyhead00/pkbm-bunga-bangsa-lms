@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - PKBM Bunga Bangsa LMS</title>
-  <link rel="stylesheet" href="../../../../css/main.css">
-  <link rel="stylesheet" href="../../../../css/components.css">
-  <link rel="stylesheet" href="../../../../css/pages.css">
-  <link rel="stylesheet" href="../../../../css/responsive.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/pages.css">
+  <link rel="stylesheet" href="./css/responsive.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
   <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');</script>
 </head>
@@ -36,7 +36,7 @@
     <!-- Logo & Title -->
     <div class="login-logo-area">
       <div class="login-logo-icon">
-        <img src="../../../../assets/logo.png" alt="PKBM Bunga Bangsa">
+        <img src="./assets/logo.png" alt="PKBM Bunga Bangsa">
       </div>
       <h1 class="login-title">PKBM Bunga Bangsa</h1>
       <p class="login-subtitle">Kabupaten Gunung Mas ● Kalimantan Tengah</p>
@@ -149,7 +149,7 @@
       loginBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Memproses...';
 
       // Use dynamic import for Auth
-      import('../../../../js/auth.js').then(function(mod) {
+      import('./js/auth.js').then(function(mod) {
         var Auth = mod.default;
         return Auth.login(username, password);
       }).then(function(result) {
@@ -172,11 +172,11 @@
 
     // Seed data on first load
     if (!localStorage.getItem('pkbm_users') || JSON.parse(localStorage.getItem('pkbm_users') || '[]').length === 0) {
-      import('../../../../seed-data.js').catch(function() {});
+      import('./seed-data.js').catch(function() {});
     }
 
     // Check session
-    import('../../../../js/auth.js').then(function(mod) {
+    import('./js/auth.js').then(function(mod) {
       var Auth = mod.default;
       var session = Auth.checkSession();
       if (session) {
