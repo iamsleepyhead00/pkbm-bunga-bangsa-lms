@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PKBM Bunga Bangsa - LMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div id="loading" style="display:flex;align-items:center;justify-content:center;height:100vh;">
+    <p>Memuat...</p>
+  </div>
+
+  <script type="module">
+    // Check session and redirect to appropriate dashboard
+    const SESSION_KEY = 'pkbm_lms_session';
+    const SESSION_DURATION = 60 * 60 * 1000; // 60 minutes
+
+    function checkSession() {
+      try {
+        const sessionData = localStorage.getItem(SESSION_KEY);
+        if (!sessionData) return null;
+
+        const session = JSON.parse(sessionData);
+        const now = new Date().getTime();
+        const lastActivity = new Date(session.lastActivity).getTime();
+
+        if (now - lastActivity > SESSION_DURATION) {
+          localStorage.removeItem(SESSION_KEY);
+          return null;
+        }
+
+        return session;
+      } catch (e) {
+        localStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+    }
+
+    const session = checkSession();
+
+    if (!session) {
+      window.location.href = '/login.html';
+    } else {
+      // Update last activity
+      session.lastActivity = new Date().toISOString();
+      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
+      // Redirect based on role
+      switch (session.role) {
+        case 'GURU':
+          window.location.href = '/pages/guru/dashboard.html';
+          break;
+        case 'SISWA':
+          window.location.href = '/pages/siswa/dashboard.html';
+          break;
+        case 'ADMIN':
+          window.location.href = '/pages/admin/dashboard.html';
+          break;
+        default:
+          window.location.href = '/login.html';
+      }
+    }
+  </script>
+</body>
+</html>

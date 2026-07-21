@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Kuis - PKBM LMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div id="headerContainer"></div>
+    <main class="main-content" id="mainContent">
+      <div class="loading-spinner" role="status" aria-label="Memuat...">
+        <div class="spinner"></div>
+        <span class="loading-text">Memuat...</span>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import Auth from '/js/auth.js';
+    import { initLayout } from '/js/components.js';
+    import KuisPage from '/js/pages/kuis.js';
+
+    // Auth guard
+    const session = Auth.checkSession();
+    if (!session) {
+      window.location.href = '/login.html';
+    } else if (!Auth.enforceRole(['GURU'])) {
+      // Redirected to 403
+    } else {
+      initLayout('GURU', 'kursus', { pageTitle: 'Buat Kuis' });
+      KuisPage.initBuilder();
+    }
+  </script>
+</body>
+</html>

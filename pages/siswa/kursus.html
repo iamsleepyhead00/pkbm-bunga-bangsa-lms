@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kursus Saya - PKBM LMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div id="headerContainer"></div>
+    <main class="main-content" role="main" aria-label="Konten kursus siswa">
+      <div class="loading-spinner" role="status" aria-label="Memuat...">
+        <div class="spinner"></div>
+        <span class="loading-text">Memuat...</span>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import KursusSiswaPage from '/js/pages/kursus-siswa.js';
+    KursusSiswaPage.init();
+  </script>
+</body>
+</html>

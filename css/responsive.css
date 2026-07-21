@@ -1,0 +1,450 @@
+/* ============================================
+   responsive.css — Media Queries & Mobile Styles
+   PKBM LMS - Learning Management System
+   Mobile-first approach
+   Breakpoints: 320px (base), 768px (tablet), 1024px (desktop), 1920px (wide)
+   Touch targets: min 44x44px on mobile
+   ============================================ */
+
+/* --- BASE: Mobile First (320px+) --- */
+/* All base styles in main.css are mobile-first. 
+   This file handles layout adjustments at each breakpoint. */
+
+/* Mobile base: Single column, full-width everything */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background-color: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: var(--z-sidebar);
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: calc(var(--z-sidebar) - 1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.main-content {
+  flex: 1;
+  padding: var(--space-base);
+  margin-top: var(--header-height);
+  width: 100%;
+}
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-base);
+  z-index: var(--z-sticky);
+  gap: var(--space-base);
+}
+
+/* Hamburger Menu Button — visible on mobile */
+.hamburger-btn {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  font-size: 1.5rem;
+  color: var(--text);
+  transition: background-color var(--transition-fast);
+}
+
+.hamburger-btn:hover {
+  background-color: var(--gray-100);
+}
+
+/* Mobile: Force touch-friendly sizes */
+.nav-item {
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-base);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background-color: var(--primary-light);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, var(--primary-light) 0%, transparent 100%);
+  color: var(--primary);
+  font-weight: var(--font-medium);
+  border-left-color: var(--primary);
+}
+
+.nav-item i {
+  font-size: 1.25rem;
+  width: 24px;
+  text-align: center;
+}
+
+/* Mobile: Grid fallback to single column */
+.grid-2,
+.grid-3,
+.grid-4 {
+  grid-template-columns: 1fr;
+}
+
+/* Mobile: Stack card footer buttons */
+.card-footer {
+  flex-wrap: wrap;
+}
+
+/* Mobile: Full-width buttons in forms */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.form-actions .btn {
+  width: 100%;
+}
+
+/* Mobile: Table horizontal scroll */
+.table-wrapper {
+  margin: 0 calc(var(--space-base) * -1);
+  padding: 0 var(--space-base);
+}
+
+/* Mobile: Toast full-width */
+.toast-container {
+  left: var(--space-base);
+  right: var(--space-base);
+  max-width: none;
+}
+
+/* Mobile: Modal full-screen on small devices */
+.modal {
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* --- SMALL TABLET (480px+) --- */
+@media (min-width: 480px) {
+  .modal {
+    max-width: 520px;
+    max-height: 90vh;
+    height: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .form-actions .btn {
+    width: auto;
+  }
+
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- TABLET (768px+) — Major breakpoint --- */
+@media (min-width: 768px) {
+  /* Show sidebar permanently on tablet+ */
+  .sidebar {
+    transform: translateX(0);
+    position: fixed;
+  }
+
+  .sidebar-overlay {
+    display: none;
+  }
+
+  /* Hamburger hidden on tablet+ */
+  .hamburger-btn {
+    display: none;
+  }
+
+  /* Offset content for fixed sidebar */
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding: var(--space-lg);
+  }
+
+  .app-header {
+    left: var(--sidebar-width);
+  }
+
+  /* Grid adjustments */
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Cards row layout */
+  .card-header {
+    flex-wrap: nowrap;
+  }
+
+  /* Table no longer needs horizontal scroll for most */
+  .table-wrapper {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Modal max width */
+  .modal-lg {
+    max-width: 680px;
+  }
+
+  /* Toast positioned top-right */
+  .toast-container {
+    left: auto;
+    max-width: 380px;
+    width: auto;
+  }
+
+  /* Page title row */
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .page-header-actions {
+    margin-top: 0;
+  }
+
+  /* Stat cards row */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- DESKTOP (1024px+) --- */
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--space-xl);
+  }
+
+  /* Grid full columns */
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Stat cards can show 4 */
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Wider modal support */
+  .modal-xl {
+    max-width: 900px;
+  }
+
+  /* Two-column form layouts */
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-base);
+  }
+
+  .form-row .form-group {
+    margin-bottom: 0;
+  }
+
+  /* Course grid 3 columns */
+  .courses-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- WIDE DESKTOP (1920px+) --- */
+@media (min-width: 1920px) {
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .main-content {
+    max-width: 1440px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .courses-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- TOUCH TARGET ENFORCEMENT (Mobile) --- */
+@media (max-width: 767px) {
+  /* Ensure all interactive elements meet 44x44px touch target */
+  button,
+  .btn,
+  a.nav-item,
+  .tab,
+  .dropdown-item,
+  .form-check,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: var(--touch-target);
+  }
+
+  .btn-sm {
+    min-height: 40px;
+  }
+
+  /* Larger tap areas for links in navigation */
+  .nav-item {
+    padding: var(--space-md) var(--space-base);
+  }
+
+  /* Make table cells tappable */
+  .table td a,
+  .table td button {
+    min-height: var(--touch-target);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Bottom padding for mobile scroll */
+  .main-content {
+    padding-bottom: var(--space-2xl);
+  }
+
+  /* Stack page header on mobile */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-base);
+  }
+
+  .page-header-actions {
+    width: 100%;
+  }
+
+  .page-header-actions .btn {
+    width: 100%;
+  }
+
+  /* Full width stat cards */
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Course cards single column */
+  .courses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- PRINT STYLES --- */
+@media print {
+  .sidebar,
+  .app-header,
+  .hamburger-btn,
+  .toast-container,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0;
+    margin-top: 0;
+    padding: 0;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+
+  body {
+    background-color: white;
+    color: black;
+  }
+}
+
+/* --- REDUCED MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- DARK MODE PREP (future) --- */
+@media (prefers-color-scheme: dark) {
+  /* Reserved for future dark mode support.
+     Uncomment when ready:
+  :root {
+    --bg: #0f172a;
+    --bg-alt: #1e293b;
+    --surface: #1e293b;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #334155;
+  }
+  */
+}

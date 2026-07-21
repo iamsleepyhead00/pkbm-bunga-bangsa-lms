@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Kursus - PKBM LMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div id="headerContainer"></div>
+    <main class="main-content" id="mainContent">
+      <div class="loading-spinner" role="status" aria-label="Memuat...">
+        <div class="spinner"></div>
+        <span class="loading-text">Memuat...</span>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import Auth from '/js/auth.js';
+    import dataService from '/js/data-service.js';
+    import { initLayout, showToast, showConfirm, showModal, closeModal, renderStatusBadge } from '/js/components.js';
+    import { getProgramLabel } from '/js/curriculum.js';
+    import MateriPage from '/js/pages/materi.js';
+    import TugasPage from '/js/pages/tugas.js';
+    import KuisPage from '/js/pages/kuis.js';
+
+    // Auth guard
+    const session = Auth.checkSession();
+    if (!session) {
+      window.location.href = '/login.html';
+    } else if (!Auth.enforceRole(['GURU'])) {
+      // Redirected to 403
+    } else {
+      initKursusDetail();
+    }
+
+    async function initKursusDetail() {
+      // Get courseId from URL
+      const params = new URLSearchParams(window.location.search);
+      const courseId = params.get('id');
+
+      if (!courseId) {
+        window.location.href = '/pages/guru/kursus.html';
+        return;
+      }
+
+      // Init layout
+      initLayout('GURU', 'kursus', { pageTitle: 'Detail Kursus' });
+
+      const mainContent = document.getElementById('mainContent');
+
+      try {
+        // Load course data
+        const course = await dataService.getCourseById(courseId);
+        if (!course) {
+          mainContent.innerHTML = `<div class="empty-state">
+            <i class="ri-error-warning-line empty-state-icon"></i>
+            <h3>Kursus tidak ditemukan</h3>
+            <a href="/pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
+          </div>`;
+          return;
+        }
+
+        // Verify ownership
+        if (course.guruId !== session.userId) {
+          mainContent.innerHTML = `<div class="empty-state">
+            <i class="ri-lock-line empty-state-icon"></i>
+            <h3>Akses Ditolak</h3>
+            <p>Anda tidak memiliki akses ke kursus ini</p>
+            <a href="/pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
+          </div>`;
+          return;
+        }
+
+        // Load student count
+        const students = await dataService.getCourseStudents(courseId);
+        const studentCount = students.length;
+
+        // Render page
+        renderCourseDetail(course, studentCount);
+
+        // Load materi tab content
+        const materiTab = document.getElementById('tabMateri');
+        if (materiTab) {
+          await MateriPage.renderGuruTab(courseId, materiTab);
+        }
+
+        // Load tugas tab content
+        const tugasTab = document.getElementById('tabTugas');
+        if (tugasTab) {
+          await TugasPage.renderGuruTab(courseId, tugasTab);
+        }
+
+        // Load kuis tab content
+        const kuisTab = document.getElementById('tabKuis');
+        if (kuisTab) {
+          await KuisPage.renderGuruTab(courseId, kuisTab);
+        }
+        // Load siswa tab and forum link
+        loadSiswaTab(courseId, course);
+        loadForumTab(courseId);
+
+      } catch (err) {
+        console.error('Error loading course detail:', err);
+        mainContent.innerHTML = `<div class="empty-state">
+          <i class="ri-error-warning-line empty-state-icon"></i>
+          <h3>Gagal memuat data</h3>
+          <a href="/pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
+        </div>`;
+      }
+    }
+
+    async function loadForumTab(courseId) {
+      const linkEl = document.getElementById('linkToForum');
+      if (linkEl) linkEl.href = `/pages/guru/forum.html?courseId=${courseId}`;
+      const preview = document.getElementById('forumPreview');
+      if (!preview) return;
+      try {
+        const topics = await dataService.getForumTopics(courseId);
+        if (topics.length === 0) {
+          preview.innerHTML = '<p class="text-muted">Belum ada diskusi di kursus ini</p>';
+        } else {
+          preview.innerHTML = topics.slice(0, 5).map(t => `
+            <div class="card" style="padding:0.75rem;margin-bottom:0.5rem;">
+              <strong>${escapeHtml(t.judul)}</strong>
+              <span class="text-muted" style="font-size:0.75rem;"> — ${t.replyCount} balasan</span>
+            </div>`).join('');
+        }
+      } catch { preview.innerHTML = ''; }
+    }
+
+    async function loadSiswaTab(courseId, course) {
+      const container = document.getElementById('siswaTabContent');
+      if (!container) return;
+
+      try {
+        const students = await dataService.getCourseStudents(courseId);
+        const allUsers = await dataService.getUsers({ role: 'SISWA', aktif: true });
+
+        // Filter eligible students (same program & kelas)
+        const eligibleStudents = allUsers.filter(u =>
+          u.program === course.program && u.kelas === course.kelas &&
+          !students.find(s => s.id === u.id)
+        );
+
+        let html = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <h4>Siswa Terdaftar (${students.length})</h4>
+            <button class="btn btn-primary btn-sm" id="btnEnrollSiswa">
+              <i class="ri-user-add-line"></i> Tambah Siswa
+            </button>
+          </div>`;
+
+        if (students.length === 0) {
+          html += '<p class="text-muted">Belum ada siswa terdaftar di kursus ini</p>';
+        } else {
+          const rows = students.map(s => `
+            <tr>
+              <td>${escapeHtml(s.nama)}</td>
+              <td><code>${escapeHtml(s.username)}</code></td>
+              <td>${escapeHtml(s.kelas || '-')}</td>
+              <td>
+                <button class="btn btn-sm btn-danger" data-unenroll="${s.id}">
+                  <i class="ri-close-line"></i> Hapus
+                </button>
+              </td>
+            </tr>`).join('');
+
+          html += `<div class="table-responsive"><table class="table">
+            <thead><tr><th>Nama</th><th>Username</th><th>Kelas</th><th>Aksi</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table></div>`;
+        }
+
+        container.innerHTML = html;
+
+        // Bind enroll button
+        document.getElementById('btnEnrollSiswa')?.addEventListener('click', () => {
+          showEnrollModal(courseId, course, eligibleStudents);
+        });
+
+        // Bind unenroll buttons
+        container.querySelectorAll('[data-unenroll]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const siswaId = btn.dataset.unenroll;
+            const confirmed = await showConfirm('Hapus siswa dari kursus ini? Riwayat nilai tetap tersimpan.');
+            if (!confirmed) return;
+            await dataService.unenrollStudent(courseId, siswaId);
+            showToast('Siswa dihapus dari kursus', 'success');
+            loadSiswaTab(courseId, course);
+          });
+        });
+      } catch (err) {
+        console.error('Error loading siswa tab:', err);
+        container.innerHTML = '<p>Gagal memuat data siswa</p>';
+      }
+    }
+
+    function showEnrollModal(courseId, course, eligibleStudents) {
+      if (eligibleStudents.length === 0) {
+        showToast('Tidak ada siswa yang bisa didaftarkan (program/kelas harus sesuai)', 'warning');
+        return;
+      }
+
+      const checkboxes = eligibleStudents.map(s =>
+        `<label class="form-check" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+          <input type="checkbox" value="${s.id}" class="enroll-checkbox">
+          <span>${escapeHtml(s.nama)} (${escapeHtml(s.username)})</span>
+        </label>`
+      ).join('');
+
+      const formHtml = `
+        <p class="text-muted" style="margin-bottom:1rem;">Pilih siswa yang ingin didaftarkan ke kursus ini.<br>
+        Hanya siswa dengan program <strong>${course.program}</strong> dan kelas <strong>${course.kelas}</strong> yang ditampilkan.</p>
+        <div style="max-height:300px;overflow-y:auto;">${checkboxes}</div>
+        <div id="enrollError" class="form-error" hidden></div>`;
+
+      showModal('Daftarkan Siswa', formHtml, [
+        { label: 'Batal', type: 'secondary', handler: () => {} }
+      ]);
+
+      const modalFooter = document.querySelector('#appModal .modal-footer');
+      if (modalFooter) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Daftarkan';
+        btn.addEventListener('click', async () => {
+          const selected = [...document.querySelectorAll('.enroll-checkbox:checked')].map(cb => cb.value);
+          if (selected.length === 0) {
+            const err = document.getElementById('enrollError');
+            err.textContent = 'Pilih minimal 1 siswa';
+            err.hidden = false;
+            return;
+          }
+
+          // Validate each student
+          for (const siswaId of selected) {
+            const result = await dataService.validateEnrollment(siswaId, courseId);
+            if (!result.valid) {
+              showToast(result.error, 'error');
+              return;
+            }
+          }
+
+          await dataService.enrollStudents(courseId, selected);
+          showToast(`${selected.length} siswa berhasil didaftarkan!`, 'success');
+          closeModal();
+          loadSiswaTab(courseId, course);
+        });
+        modalFooter.appendChild(btn);
+      }
+    }
+
+    function renderCourseDetail(course, studentCount) {
+      const mainContent = document.getElementById('mainContent');
+      const programLabel = getProgramLabel(course.program);
+      const statusText = course.aktif !== false ? 'Aktif' : 'Nonaktif';
+      const statusColor = course.aktif !== false ? 'success' : 'gray';
+      const toggleBtnText = course.aktif !== false ? 'Nonaktifkan' : 'Aktifkan';
+      const toggleBtnIcon = course.aktif !== false ? 'ri-close-circle-line' : 'ri-checkbox-circle-line';
+      const toggleBtnClass = course.aktif !== false ? 'btn btn-danger-outline' : 'btn btn-success';
+
+      mainContent.innerHTML = `
+        <div class="page-header">
+          <a href="/pages/guru/kursus.html" class="btn btn-back" aria-label="Kembali ke daftar kursus">
+            <i class="ri-arrow-left-line"></i>
+            <span>Kembali</span>
+          </a>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary" id="btnEditCourse">
+              <i class="ri-edit-line"></i>
+              <span>Edit</span>
+            </button>
+            <button class="${toggleBtnClass}" id="btnToggleStatus" data-course-id="${course.id}" data-aktif="${course.aktif}">
+              <i class="${toggleBtnIcon}"></i>
+              <span>${toggleBtnText}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="course-detail-header card">
+          <div class="course-detail-info">
+            <h2 class="course-detail-title">${escapeHtml(course.nama)}</h2>
+            <div class="course-detail-meta">
+              <span class="badge badge-primary">${escapeHtml(programLabel)}</span>
+              ${renderStatusBadge(statusText, statusColor)}
+              <span class="meta-item"><i class="ri-book-2-line"></i> ${escapeHtml(course.mataPelajaran)}</span>
+              <span class="meta-item"><i class="ri-group-line"></i> ${escapeHtml(course.kelas)}</span>
+              <span class="meta-item"><i class="ri-user-line"></i> ${studentCount} siswa terdaftar</span>
+            </div>
+            ${course.deskripsi ? `<p class="course-detail-desc">${escapeHtml(course.deskripsi)}</p>` : ''}
+          </div>
+        </div>
+
+        <div class="course-tabs">
+          <nav class="tab-nav" role="tablist" aria-label="Navigasi konten kursus">
+            <button class="tab-btn active" data-tab="materi" role="tab" aria-selected="true" aria-controls="tabMateri">
+              <i class="ri-file-text-line"></i> Materi
+            </button>
+            <button class="tab-btn" data-tab="tugas" role="tab" aria-selected="false" aria-controls="tabTugas">
+              <i class="ri-task-line"></i> Tugas
+            </button>
+            <button class="tab-btn" data-tab="kuis" role="tab" aria-selected="false" aria-controls="tabKuis">
+              <i class="ri-questionnaire-line"></i> Kuis
+            </button>
+            <button class="tab-btn" data-tab="forum" role="tab" aria-selected="false" aria-controls="tabForum">
+              <i class="ri-discuss-line"></i> Forum
+            </button>
+            <button class="tab-btn" data-tab="siswa" role="tab" aria-selected="false" aria-controls="tabSiswa">
+              <i class="ri-group-line"></i> Siswa
+            </button>
+          </nav>
+
+          <div class="tab-content">
+            <div class="tab-panel active" id="tabMateri" role="tabpanel">
+              <div class="loading-spinner" role="status" aria-label="Memuat materi...">
+                <div class="spinner"></div>
+                <span class="loading-text">Memuat materi...</span>
+              </div>
+            </div>
+            <div class="tab-panel" id="tabTugas" role="tabpanel" hidden>
+              <div class="loading-spinner" role="status" aria-label="Memuat tugas...">
+                <div class="spinner"></div>
+                <span class="loading-text">Memuat tugas...</span>
+              </div>
+            </div>
+            <div class="tab-panel" id="tabKuis" role="tabpanel" hidden>
+              <div class="loading-spinner" role="status" aria-label="Memuat kuis...">
+                <div class="spinner"></div>
+                <span class="loading-text">Memuat kuis...</span>
+              </div>
+            </div>
+            <div class="tab-panel" id="tabForum" role="tabpanel" hidden>
+              <div style="text-align:right;margin-bottom:1rem;">
+                <a href="/pages/guru/forum.html?courseId=${''}" class="btn btn-primary" id="linkToForum">
+                  <i class="ri-external-link-line"></i> Buka Forum
+                </a>
+              </div>
+              <div id="forumPreview"></div>
+            </div>
+            <div class="tab-panel" id="tabSiswa" role="tabpanel" hidden>
+              <div id="siswaTabContent">
+                <div class="loading-spinner"><div class="spinner"></div><span class="loading-text">Memuat...</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Bind events
+      bindDetailEvents(course);
+    }
+
+    function bindDetailEvents(course) {
+      // Tab navigation
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.dataset.tab;
+
+          // Deactivate all tabs
+          tabBtns.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+            panel.hidden = true;
+          });
+
+          // Activate clicked tab
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
+          const panel = document.getElementById('tab' + capitalize(tabId));
+          if (panel) {
+            panel.classList.add('active');
+            panel.hidden = false;
+          }
+        });
+      });
+
+      // Toggle status button
+      const btnToggle = document.getElementById('btnToggleStatus');
+      if (btnToggle) {
+        btnToggle.addEventListener('click', async () => {
+          const isAktif = course.aktif !== false;
+          if (isAktif) {
+            const confirmed = await showConfirm('Apakah Anda yakin ingin menonaktifkan kursus ini? Siswa tidak akan bisa mengakses kursus ini lagi.');
+            if (!confirmed) return;
+            try {
+              await dataService.deactivateCourse(course.id);
+              showToast('Kursus berhasil dinonaktifkan', 'success');
+              // Reload page
+              window.location.reload();
+            } catch (err) {
+              showToast('Gagal menonaktifkan kursus', 'error');
+            }
+          } else {
+            try {
+              await dataService.updateCourse(course.id, { aktif: true });
+              showToast('Kursus berhasil diaktifkan', 'success');
+              window.location.reload();
+            } catch (err) {
+              showToast('Gagal mengaktifkan kursus', 'error');
+            }
+          }
+        });
+      }
+
+      // Edit button
+      const btnEdit = document.getElementById('btnEditCourse');
+      if (btnEdit) {
+        btnEdit.addEventListener('click', () => {
+          showEditModal(course);
+        });
+      }
+    }
+
+    function showEditModal(course) {
+      const formHtml = `
+        <form id="editCourseForm" class="form">
+          <div class="form-group">
+            <label class="form-label" for="editCourseName">Nama Kursus <span class="required">*</span></label>
+            <input type="text" class="form-input" id="editCourseName" name="nama" value="${escapeHtml(course.nama)}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Program</label>
+            <input type="text" class="form-input" value="${escapeHtml(getProgramLabel(course.program))}" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kelas</label>
+            <input type="text" class="form-input" value="${escapeHtml(course.kelas)}" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mata Pelajaran</label>
+            <input type="text" class="form-input" value="${escapeHtml(course.mataPelajaran)}" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editCourseDesc">Deskripsi</label>
+            <textarea class="form-textarea" id="editCourseDesc" name="deskripsi" rows="3">${escapeHtml(course.deskripsi || '')}</textarea>
+          </div>
+          <p class="form-hint"><i class="ri-information-line"></i> Program, Kelas, dan Mata Pelajaran tidak dapat diubah setelah kursus dibuat.</p>
+        </form>
+      `;
+
+      showModal('Edit Kursus', formHtml, [
+        { label: 'Batal', type: 'secondary', handler: () => {} }
+      ]);
+
+      // Add Simpan button manually for async handler
+      const modalFooter = document.querySelector('#appModal .modal-footer');
+      if (modalFooter) {
+        const simpanBtn = document.createElement('button');
+        simpanBtn.className = 'btn btn-primary';
+        simpanBtn.textContent = 'Simpan';
+        simpanBtn.addEventListener('click', async () => {
+          const nama = document.getElementById('editCourseName').value.trim();
+          const deskripsi = document.getElementById('editCourseDesc').value.trim();
+
+          if (!nama) {
+            showToast('Nama kursus wajib diisi', 'error');
+            return;
+          }
+
+          try {
+            await dataService.updateCourse(course.id, { nama, deskripsi });
+            showToast('Kursus berhasil diperbarui', 'success');
+            closeModal();
+            window.location.reload();
+          } catch (err) {
+            showToast('Gagal memperbarui kursus', 'error');
+          }
+        });
+        modalFooter.appendChild(simpanBtn);
+      }
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
