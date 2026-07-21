@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PKBM Bunga Bangsa - LMS</title>
-  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="../../../../css/main.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
@@ -41,7 +41,7 @@
     const session = checkSession();
 
     if (!session) {
-      window.location.href = '/login.html';
+      window.location.href = '../../../../login.html';
     } else {
       // Update last activity
       session.lastActivity = new Date().toISOString();
@@ -50,16 +50,16 @@
       // Redirect based on role
       switch (session.role) {
         case 'GURU':
-          window.location.href = '/pages/guru/dashboard.html';
+          window.location.href = '../../../../pages/guru/dashboard.html';
           break;
         case 'SISWA':
-          window.location.href = '/pages/siswa/dashboard.html';
+          window.location.href = '../../../../pages/siswa/dashboard.html';
           break;
         case 'ADMIN':
-          window.location.href = '/pages/admin/dashboard.html';
+          window.location.href = '../../../../pages/admin/dashboard.html';
           break;
         default:
-          window.location.href = '/login.html';
+          window.location.href = '../../../../login.html';
       }
     }
   </script>

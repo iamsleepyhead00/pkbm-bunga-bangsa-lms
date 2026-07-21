@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detail Kursus - PKBM LMS</title>
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/pages.css">
-  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="../../../../../../css/main.css">
+  <link rel="stylesheet" href="../../../../../../css/components.css">
+  <link rel="stylesheet" href="../../../../../../css/pages.css">
+  <link rel="stylesheet" href="../../../../../../css/responsive.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
@@ -23,18 +23,18 @@
   </div>
 
   <script type="module">
-    import Auth from '/js/auth.js';
-    import dataService from '/js/data-service.js';
-    import { initLayout, showToast, showConfirm, showModal, closeModal, renderStatusBadge } from '/js/components.js';
-    import { getProgramLabel } from '/js/curriculum.js';
-    import MateriPage from '/js/pages/materi.js';
-    import TugasPage from '/js/pages/tugas.js';
-    import KuisPage from '/js/pages/kuis.js';
+    import Auth from '../../../../../../js/auth.js';
+    import dataService from '../../../../../../js/data-service.js';
+    import { initLayout, showToast, showConfirm, showModal, closeModal, renderStatusBadge } from '../../../../../../js/components.js';
+    import { getProgramLabel } from '../../../../../../js/curriculum.js';
+    import MateriPage from '../../../../../../js/pages/materi.js';
+    import TugasPage from '../../../../../../js/pages/tugas.js';
+    import KuisPage from '../../../../../../js/pages/kuis.js';
 
     // Auth guard
     const session = Auth.checkSession();
     if (!session) {
-      window.location.href = '/login.html';
+      window.location.href = '../../../../../../login.html';
     } else if (!Auth.enforceRole(['GURU'])) {
       // Redirected to 403
     } else {
@@ -47,7 +47,7 @@
       const courseId = params.get('id');
 
       if (!courseId) {
-        window.location.href = '/pages/guru/kursus.html';
+        window.location.href = '../../../../../../pages/guru/kursus.html';
         return;
       }
 
@@ -63,7 +63,7 @@
           mainContent.innerHTML = `<div class="empty-state">
             <i class="ri-error-warning-line empty-state-icon"></i>
             <h3>Kursus tidak ditemukan</h3>
-            <a href="/pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
+            <a href="../../../../../../pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
           </div>`;
           return;
         }
@@ -74,7 +74,7 @@
             <i class="ri-lock-line empty-state-icon"></i>
             <h3>Akses Ditolak</h3>
             <p>Anda tidak memiliki akses ke kursus ini</p>
-            <a href="/pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
+            <a href="../../../../../../pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
           </div>`;
           return;
         }
@@ -112,7 +112,7 @@
         mainContent.innerHTML = `<div class="empty-state">
           <i class="ri-error-warning-line empty-state-icon"></i>
           <h3>Gagal memuat data</h3>
-          <a href="/pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
+          <a href="../../../../../../pages/guru/kursus.html" class="btn btn-primary">Kembali ke Daftar Kursus</a>
         </div>`;
       }
     }
@@ -269,7 +269,7 @@
 
       mainContent.innerHTML = `
         <div class="page-header">
-          <a href="/pages/guru/kursus.html" class="btn btn-back" aria-label="Kembali ke daftar kursus">
+          <a href="../../../../../../pages/guru/kursus.html" class="btn btn-back" aria-label="Kembali ke daftar kursus">
             <i class="ri-arrow-left-line"></i>
             <span>Kembali</span>
           </a>
@@ -339,7 +339,7 @@
             </div>
             <div class="tab-panel" id="tabForum" role="tabpanel" hidden>
               <div style="text-align:right;margin-bottom:1rem;">
-                <a href="/pages/guru/forum.html?courseId=${''}" class="btn btn-primary" id="linkToForum">
+                <a href="../../../../../../pages/guru/forum.html?courseId=${''}" class="btn btn-primary" id="linkToForum">
                   <i class="ri-external-link-line"></i> Buka Forum
                 </a>
               </div>
