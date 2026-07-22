@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <base href="./">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PKBM Bunga Bangsa - LMS</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
@@ -20,13 +21,13 @@
         if (now - last < 3600000) {
           session.lastActivity = new Date().toISOString();
           localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-          if (session.role === 'GURU') { window.location.replace('./pages/guru/dashboard.html'); }
-          else if (session.role === 'SISWA') { window.location.replace('./pages/siswa/dashboard.html'); }
-          else if (session.role === 'ADMIN') { window.location.replace('./pages/admin/dashboard.html'); }
-          else { window.location.replace('./login.html'); }
-        } else { localStorage.removeItem(SESSION_KEY); window.location.replace('./login.html'); }
-      } else { window.location.replace('./login.html'); }
-    } catch(e) { window.location.replace('./login.html'); }
+          if (session.role === 'GURU') { window.location.replace('pages/guru/dashboard.html'); }
+          else if (session.role === 'SISWA') { window.location.replace('pages/siswa/dashboard.html'); }
+          else if (session.role === 'ADMIN') { window.location.replace('pages/admin/dashboard.html'); }
+          else { window.location.replace('login.html'); }
+        } else { localStorage.removeItem(SESSION_KEY); window.location.replace('login.html'); }
+      } else { window.location.replace('login.html'); }
+    } catch(e) { window.location.replace('login.html'); }
   </script>
 </body>
 </html>

@@ -2,13 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <base href="./">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - PKBM Bunga Bangsa LMS</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-  <link rel="stylesheet" href="./css/main.css">
-  <link rel="stylesheet" href="./css/components.css">
-  <link rel="stylesheet" href="./css/pages.css">
-  <link rel="stylesheet" href="./css/responsive.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
   <script>if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');</script>
 </head>
@@ -37,7 +38,7 @@
     <!-- Logo & Title -->
     <div class="login-logo-area">
       <div class="login-logo-icon">
-        <img src="./assets/logo.png" alt="PKBM Bunga Bangsa">
+        <img src="assets/logo.png" alt="PKBM Bunga Bangsa">
       </div>
       <h1 class="login-title">PKBM Bunga Bangsa</h1>
       <p class="login-subtitle">Kabupaten Gunung Mas ● Kalimantan Tengah</p>
@@ -150,13 +151,13 @@
       loginBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Memproses...';
 
       // Use dynamic import for Auth
-      import('./js/auth.js').then(function(mod) {
+      import('js/auth.js').then(function(mod) {
         var Auth = mod.default;
         return Auth.login(username, password);
       }).then(function(result) {
         if (result && result.success) {
-          var base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1); var map = { GURU: base + 'pages/guru/dashboard.html', SISWA: base + 'pages/siswa/dashboard.html', ADMIN: base + 'pages/admin/dashboard.html' };
-          window.location.href = map[result.user.role] || './login.html';
+          var map = { GURU: 'pages/guru/dashboard.html', SISWA: 'pages/siswa/dashboard.html', ADMIN: 'pages/admin/dashboard.html' };
+          window.location.href = map[result.user.role] || 'login.html';
         } else {
           errorEl.style.display = 'flex';
           errorText.textContent = 'Username atau password salah';
@@ -173,16 +174,16 @@
 
     // Seed data on first load
     if (!localStorage.getItem('pkbm_users') || JSON.parse(localStorage.getItem('pkbm_users') || '[]').length === 0) {
-      import('./seed-data.js').catch(function() {});
+      import('seed-data.js').catch(function() {});
     }
 
     // Check session
-    import('./js/auth.js').then(function(mod) {
+    import('js/auth.js').then(function(mod) {
       var Auth = mod.default;
       var session = Auth.checkSession();
       if (session) {
-        var base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1); var map = { GURU: base + 'pages/guru/dashboard.html', SISWA: base + 'pages/siswa/dashboard.html', ADMIN: base + 'pages/admin/dashboard.html' };
-        window.location.href = map[session.role] || './login.html';
+        var map = { GURU: 'pages/guru/dashboard.html', SISWA: 'pages/siswa/dashboard.html', ADMIN: 'pages/admin/dashboard.html' };
+        window.location.href = map[session.role] || 'login.html';
       }
     }).catch(function() {});
   </script>
