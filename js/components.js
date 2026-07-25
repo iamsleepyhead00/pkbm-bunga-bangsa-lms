@@ -398,7 +398,7 @@ function bindHeaderEvents() {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       Auth.logout();
-      window.location.href = '/login.html';
+      window.location.href = new URL('login.html', document.baseURI).href;
     });
   }
 }

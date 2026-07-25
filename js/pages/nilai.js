@@ -15,7 +15,7 @@ const NilaiPage = {
   async init() {
     this.session = Auth.checkSession();
     if (!this.session) {
-      window.location.href = '/login.html';
+      window.location.href = new URL('login.html', document.baseURI).href;
       return;
     }
     this.role = this.session.role;

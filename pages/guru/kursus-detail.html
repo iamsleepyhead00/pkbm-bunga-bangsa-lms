@@ -48,7 +48,7 @@
       const courseId = params.get('id');
 
       if (!courseId) {
-        window.location.href = 'pages/guru/kursus.html';
+        window.location.href = new URL('pages/guru/kursus.html', document.baseURI).href;
         return;
       }
 

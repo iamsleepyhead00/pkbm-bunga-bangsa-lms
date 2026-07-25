@@ -25,7 +25,7 @@ const KursusSiswaPage = {
     // Auth guard
     this.session = Auth.checkSession();
     if (!this.session) {
-      window.location.href = '/login.html';
+      window.location.href = new URL('login.html', document.baseURI).href;
       return;
     }
     if (!Auth.enforceRole(['SISWA'])) {

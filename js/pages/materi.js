@@ -184,7 +184,7 @@ const MateriPage = {
     const materialId = params.get('id');
 
     if (!this.courseId) {
-      window.location.href = '/pages/guru/kursus.html';
+      window.location.href = new URL('pages/guru/kursus.html', document.baseURI).href;
       return;
     }
 
@@ -521,7 +521,7 @@ const MateriPage = {
     this.courseId = params.get('courseId');
 
     if (!this.courseId) {
-      window.location.href = '/pages/siswa/kursus.html';
+      window.location.href = new URL('pages/siswa/kursus.html', document.baseURI).href;
       return;
     }
 

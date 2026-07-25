@@ -20,7 +20,7 @@ function initApp() {
   const isPublicPage = publicPages.some(page => currentPath.endsWith(page));
 
   if (!session && !isPublicPage) {
-    window.location.href = '/login.html';
+    window.location.href = new URL('login.html', document.baseURI).href;
     return;
   }
 
@@ -44,16 +44,16 @@ function initApp() {
 function redirectToDashboard(role) {
   switch (role) {
     case 'ADMIN':
-      window.location.href = '/pages/admin/dashboard.html';
+      window.location.href = new URL('pages/admin/dashboard.html', document.baseURI).href;
       break;
     case 'GURU':
-      window.location.href = '/pages/guru/dashboard.html';
+      window.location.href = new URL('pages/guru/dashboard.html', document.baseURI).href;
       break;
     case 'SISWA':
-      window.location.href = '/pages/siswa/dashboard.html';
+      window.location.href = new URL('pages/siswa/dashboard.html', document.baseURI).href;
       break;
     default:
-      window.location.href = '/login.html';
+      window.location.href = new URL('login.html', document.baseURI).href;
   }
 }
 
@@ -65,7 +65,7 @@ function setupSessionMonitor() {
   setInterval(() => {
     if (Auth.isSessionExpired()) {
       Auth.logout();
-      window.location.href = '/login.html';
+      window.location.href = new URL('login.html', document.baseURI).href;
     }
   }, 5 * 60 * 1000); // Check every 5 minutes
 }

@@ -78,7 +78,7 @@ const Auth = {
   enforceRole(allowedRoles) {
     const session = this.checkSession();
     if (!session) {
-      window.location.href = '/login.html';
+      window.location.href = new URL('login.html', document.baseURI).href;
       return false;
     }
     if (!allowedRoles.includes(session.role)) {

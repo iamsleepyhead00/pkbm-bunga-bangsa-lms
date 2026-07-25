@@ -21,13 +21,13 @@
         if (now - last < 3600000) {
           session.lastActivity = new Date().toISOString();
           localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-          if (session.role === 'GURU') { window.location.replace('pages/guru/dashboard.html'); }
-          else if (session.role === 'SISWA') { window.location.replace('pages/siswa/dashboard.html'); }
-          else if (session.role === 'ADMIN') { window.location.replace('pages/admin/dashboard.html'); }
-          else { window.location.replace('login.html'); }
-        } else { localStorage.removeItem(SESSION_KEY); window.location.replace('login.html'); }
-      } else { window.location.replace('login.html'); }
-    } catch(e) { window.location.replace('login.html'); }
+          if (session.role === 'GURU') { window.location.replace(new URL('pages/guru/dashboard.html', document.baseURI).href); }
+          else if (session.role === 'SISWA') { window.location.replace(new URL('pages/siswa/dashboard.html', document.baseURI).href); }
+          else if (session.role === 'ADMIN') { window.location.replace(new URL('pages/admin/dashboard.html', document.baseURI).href); }
+          else { window.location.replace(new URL('login.html', document.baseURI).href); }
+        } else { localStorage.removeItem(SESSION_KEY); window.location.replace(new URL('login.html', document.baseURI).href); }
+      } else { window.location.replace(new URL('login.html', document.baseURI).href); }
+    } catch(e) { window.location.replace(new URL('login.html', document.baseURI).href); }
   </script>
 </body>
 </html>
