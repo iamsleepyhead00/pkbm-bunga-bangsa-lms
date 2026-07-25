@@ -151,7 +151,7 @@
       loginBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Memproses...';
 
       // Use dynamic import for Auth
-      import('js/auth.js').then(function(mod) {
+      import(new URL('js/auth.js', document.baseURI).href).then(function(mod) {
         var Auth = mod.default;
         return Auth.login(username, password);
       }).then(function(result) {
@@ -190,7 +190,7 @@
     }
 
     // Check session
-    import('js/auth.js').then(function(mod) {
+    import(new URL('js/auth.js', document.baseURI).href).then(function(mod) {
       var Auth = mod.default;
       var session = Auth.checkSession();
       if (session) {
